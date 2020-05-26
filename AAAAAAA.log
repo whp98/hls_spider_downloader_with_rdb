@@ -1,0 +1,31 @@
+INFO:root:程序启动开始连数据库
+INFO:root:2020-05-26 19:20:00
+INFO:root:数据库连接成功
+INFO:root:2020-05-26 19:20:00
+INFO:root:清空下载文件列表
+INFO:root:获取下载文件列表
+INFO:root:主程序启动
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+DEBUG:urllib3.connectionpool:https://jable.tv:443 "GET /videos/hnd-825/ HTTP/1.1" 200 None
+INFO:root:获取到m3u8为 https://qmm621.cdnlab.live/hls/QhZCWBKPJL3kKXPwJ2U9zw/1590502803/7000/7749/7749.m3u8
+INFO:root:开始下载文件HND-825.mp4
+INFO:root:下载文件HND-825.mp4完成
+INFO:root:更新数据库中 HND-825 为已经下载
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+INFO:root:程序启动开始连数据库
+INFO:root:2020-05-26 20:06:06
+INFO:root:数据库连接成功
+INFO:root:2020-05-26 20:06:06
+INFO:root:清空下载文件列表
+INFO:root:获取下载文件列表
+INFO:root:主程序启动
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+DEBUG:urllib3.connectionpool:https://jable.tv:443 "GET /videos/stars-234/ HTTP/1.1" 200 None
+INFO:root:获取到m3u8为 https://qoa012.cdnlab.live/hls/Mvf554g7DSIYZTsdcS3opw/1590505568/7000/7810/7810.m3u8
+INFO:root:开始下载文件STARS-234.mp4
+INFO:root:下载文件STARS-234.mp4完成
+INFO:root:更新数据库中 STARS-234 为已经下载
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+DEBUG:urllib3.connectionpool:https://jable.tv:443 "GET /videos/xvsr-328/ HTTP/1.1" 200 None
+INFO:root:获取到m3u8为 https://qoa012.cdnlab.live/hls/V4P6ypIJKZvKyHuh_ugGQA/1590510193/7000/7782/7782.m3u8
+INFO:root:开始下载文件XVSR-328.mp4
