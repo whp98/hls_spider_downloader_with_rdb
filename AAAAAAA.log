@@ -29,3 +29,22 @@ DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
 DEBUG:urllib3.connectionpool:https://jable.tv:443 "GET /videos/xvsr-328/ HTTP/1.1" 200 None
 INFO:root:获取到m3u8为 https://qoa012.cdnlab.live/hls/V4P6ypIJKZvKyHuh_ugGQA/1590510193/7000/7782/7782.m3u8
 INFO:root:开始下载文件XVSR-328.mp4
+INFO:root:程序启动开始连数据库
+INFO:root:2020-05-26 23:25:11
+INFO:root:数据库连接成功
+INFO:root:2020-05-26 23:25:13
+INFO:root:清空下载文件列表
+INFO:root:获取下载文件列表
+INFO:root:主程序启动
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+INFO:root:程序启动开始连数据库
+INFO:root:2020-05-26 23:26:30
+INFO:root:数据库连接成功
+INFO:root:2020-05-26 23:26:30
+INFO:root:清空下载文件列表
+INFO:root:获取下载文件列表
+INFO:root:主程序启动
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): jable.tv:443
+DEBUG:urllib3.connectionpool:https://jable.tv:443 "GET /videos/xvsr-328/ HTTP/1.1" 200 None
+INFO:root:获取到m3u8为 https://q80p6a.cdnlab.live/hls/AffOOnAYlegDowslQf-8XQ/1590517592/7000/7782/7782.m3u8
+INFO:root:开始下载文件XVSR-328.mp4

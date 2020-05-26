@@ -1,6 +1,6 @@
 import subprocess
 import time
-import requests        #导入requests包
+import requests
 from bs4 import BeautifulSoup
 import pyodbc
 import os
@@ -61,6 +61,7 @@ def dl(m3u,file):
 
 def setHave(fanhao):
     sql = "UPDATE av_db SET isdown=True WHERE fanhao='{}'".format(fanhao)
+    logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     logging.info("更新数据库中 "+fanhao+" 为已经下载")
     cursor.execute(sql)
     conn.commit()
@@ -84,7 +85,7 @@ def main():
             # 检查下载的文件是否存在
             updateDB(item.get('f'))
         except Exception as e:
-            logging.info("异常"+e)
+            print(e)
 
 # 统计当前数据库中的下载情况
 #返回当前下载量，总量和百分比
