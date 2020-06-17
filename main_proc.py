@@ -62,6 +62,7 @@ def dl(m3u,file):
 def setHave(fanhao):
     sql = "UPDATE av_db SET isdown=True WHERE fanhao='{}'".format(fanhao)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    logging.info("😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁")
     logging.info("更新数据库中 "+fanhao+" 为已经下载")
     cursor.execute(sql)
     conn.commit()
@@ -76,33 +77,39 @@ def updateDB(filename_need_find):
             if os.path.getsize(os.path.join(path,file_name)) > 100*1024*1024 and filename==filename_need_find:
                 setHave(filename)
 
-def main():
-    getNewList()
-    logging.info("主程序启动")
-    for item in list_to_down:
-        try:
-            dl(get_hls(item),item.get('f'))
-            # 检查下载的文件是否存在
-            updateDB(item.get('f'))
-        except Exception as e:
-            print(e)
-
 # 统计当前数据库中的下载情况
-#返回当前下载量，总量和百分比
+#返回当前下载量，剩余量和百分比
 def get_db_info():
     sql_isdown = "SELECT * FROM av_db WHERE isdown=True"
     sql_all = "SELECT * FROM av_db"
     temp = cursor.execute(sql_isdown)
     count=0
     all_count=0
+    need_count=0
     for row in temp:
         count = count +1
     temp = cursor.execute(sql_all)
     for row in temp:
         all_count = all_count+1
+    need_count=all_count-count
+    
     # print(count,all_count,str(count/all_count*100)+"%")
-    logging.info("当前已经下载："+count+"还需要下载："+all_count)
+    logging.info("当前已经下载："+str(count)+"还需要下载："+str(need_count)+"下载进度： "+str(count/all_count*100)+"%")
     return count,  all_count,  str(count/all_count*100)+"%"
+
+def main():
+    getNewList()
+    logging.info("主程序启动")
+    for item in list_to_down:
+        try:
+            get_db_info()
+            dl(get_hls(item),item.get('f'))
+            # 检查下载的文件是否存在
+            updateDB(item.get('f'))
+        except Exception as e:
+            print(e)
+
+
 
   
 main()
