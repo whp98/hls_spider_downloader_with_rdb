@@ -6,25 +6,19 @@ import os
 import logging
 import pymysql
 
-logging.basicConfig(level=logging.DEBUG, filename='AAAAAAA.log', filemode='a')
-# logging.info("程序启动开始连数据库")
-# logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-# DBfile = r"D:\PY_Project\spider\DB.accdb"
-# conn = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=" + DBfile + ";Uid=;Pwd=;")
-# cursor = conn.cursor()
-# db = pymysql.connect(host='redis.intellij.xyz', user='root',
-#                      passwd='mysql_password', db='av_db', port=3307, charset='utf8')
-# cursor = db.cursor()
-# logging.info("数据库连接成功")
-# logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
+logging.basicConfig(level=logging.DEBUG, filename='AAAAAAA.log', filemode='a')
 sql_one = "SELECT * FROM avtable1 WHERE isdown=FALSE and doing=FALSE LIMIT 1"
+
+def safeconnectDB():
+    return pymysql.connect(host='redis.intellij.xyz', user='root',passwd='mysql_password', db='av_db', port=3307, charset='utf8')
+
 
 def safeexecuteforcommit(sql):
     logging.info("开始执行插入sql")
     logging.info(sql)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    db = pymysql.connect(host='redis.intellij.xyz', user='root',passwd='mysql_password', db='av_db', port=3307, charset='utf8')
+    db = safeconnectDB()
     cursor = db.cursor()
     cursor.execute(sql)
     db.commit()
@@ -35,7 +29,7 @@ def safeexecuteforqueryCount(sql):
     logging.info("开始执行查询sql")
     logging.info(sql)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    db = pymysql.connect(host='redis.intellij.xyz', user='root',passwd='mysql_password', db='av_db', port=3307, charset='utf8')
+    db = safeconnectDB()
     cursor = db.cursor()
     count=cursor.execute(sql)
     db.close()
@@ -46,7 +40,7 @@ def safeexecuteforOne(sql):
     logging.info("开始执行查询sql")
     logging.info(sql)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    db = pymysql.connect(host='redis.intellij.xyz', user='root',passwd='mysql_password', db='av_db', port=3307, charset='utf8')
+    db = safeconnectDB()
     cursor = db.cursor()
     cursor.execute(sql)
     one = cursor.fetchone()
