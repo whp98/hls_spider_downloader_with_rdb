@@ -8,7 +8,7 @@ import pymysql
 
 
 logging.basicConfig(level=logging.DEBUG, filename='AAAAAAA.log', filemode='a')
-sql_one = "SELECT * FROM avtable1 WHERE isdown=FALSE and doing=FALSE LIMIT 1"
+
 
 def safeconnectDB():
     return pymysql.connect(host='redis.intellij.xyz', user='root',passwd='mysql_password', db='av_db', port=3307, charset='utf8')
@@ -51,6 +51,7 @@ def safeexecuteforOne(sql):
 
 def getOne():
     logging.info("开始获取一条数据")
+    sql_one = "SELECT * FROM avtable1 WHERE isdown=FALSE AND doing=FALSE AND fail=FALSE LIMIT 1"
     row = safeexecuteforOne(sql_one)
     item = {"f": row[0], 'u': row[1]}
     logging.info("获取完成")
@@ -70,14 +71,18 @@ def get_hls(item):
     res = ''
     for item in data:
         res = item.get('href')
-    logging.info("获取到m3u8为 "+res)
-    return res
+    if(len(res)<5):
+        logging.info("m3u8获取失败，是vip影片")
+        return False
+    else:
+        logging.info("获取到m3u8为 "+res)
+        return res
 
 
 def setdoing(fanhao):
     sql = "UPDATE avtable1 SET doing=TRUE WHERE fanhao='{}'".format(fanhao)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    logging.info("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡")
+    logging.info("🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨🔨")
     logging.info("更新数据库中 "+fanhao+" 为开始下载")
     safeexecuteforcommit(sql)
 
@@ -86,7 +91,7 @@ def setnotdoing(fanhao):
     sql_haha = "UPDATE avtable1 SET doing=FALSE WHERE fanhao='{}'".format(
         fanhao)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-    logging.info("👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍")
+    logging.info("👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍")
     logging.info("更新数据库中 "+fanhao+" 为停止下载")
     logging.info(sql_haha)
     safeexecuteforcommit(sql_haha)
@@ -95,12 +100,17 @@ def setnotdoing(fanhao):
 
 
 def dl(m3u, file):
-    logging.info("开始下载文件"+file+".mp4")
-    args = "./N_m3u8DL-CLI_v2.6.3.exe " + m3u + ' --saveName ' + \
-        file+" --minThreads "+"32"+" --enableDelAfterDone"
-    logging.info(args)
-    subprocess.call(args)
-    logging.info("下载文件"+file+".mp4"+"完成")
+    if(m3u==False):
+        logging.info("文件"+file+".mp4 下载失败:获取hls失败")
+        return False
+    else:
+        logging.info("开始下载文件"+file+".mp4")
+        args = "./N_m3u8DL-CLI_v2.6.3.exe " + m3u + ' --saveName ' + \
+            file+" --minThreads "+"32"+" --enableDelAfterDone"
+        logging.info(args)
+        subprocess.call(args)
+        logging.info("下载文件"+file+".mp4"+"完成")
+        return True
 
 
 def setHave(fanhao):
@@ -111,11 +121,18 @@ def setHave(fanhao):
     logging.info("更新数据库中 "+fanhao+" 为已经下载")
     safeexecuteforcommit(sql_update)
 
+def setFail(fanhao):
+    sql_update = "UPDATE avtable1 SET fail=TRUE WHERE fanhao='{}'".format(
+        fanhao)
+    logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    logging.info("🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀🥀")
+    logging.info("更新数据库中 "+fanhao+" 为已经下载失败")
+    safeexecuteforcommit(sql_update)
+
 # 更新数据库
 
 
 def updateDB(filename_need_find):
-    logging.info("开始查找视频文件")
     path = "./Downloads"
     g = os.walk(path)
     for path, dir_list, file_list in g:
@@ -125,12 +142,14 @@ def updateDB(filename_need_find):
                 logging.info("文件找到，开始更改数据库中文件存储状态")
                 setHave(filename)
                 logging.info("数据库中的数据字段更新完成")
-    logging.info("查找更新文件完成")
+                return
+    logging.info("下载失败")
+    setFail(filename)
+    logging.info("更新数据为失败状态")
+
 
 # 统计当前数据库中的下载情况
 # 返回当前下载量，剩余量和百分比
-
-
 def get_db_info():
     logging.info("获取当前下载进度👀👀👀👀👀👀👀👀👀👀👀👀")
     sql_isdown = "SELECT * FROM avtable1 WHERE isdown=TRUE"
@@ -152,12 +171,15 @@ def main():
         if(item != None):
             get_db_info()
             setdoing(item.get('f'))
-            dl(get_hls(item), item.get('f'))
+            flag = dl(get_hls(item), item.get('f'))
             setnotdoing(item.get('f'))
             # 检查下载的文件是否存在
-            updateDB(item.get('f'))
+            if(flag):
+                updateDB(item.get('f'))
+            else:
+                setFail(item.get('f'))
         else:
-            print("异常")
+            logging.info("数据获取为空")
         
 
 
