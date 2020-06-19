@@ -5,31 +5,44 @@ from bs4 import BeautifulSoup
 import pyodbc
 import os
 import logging
+import pymysql
 
 logging.basicConfig(level=logging.DEBUG,filename='AAAAAAA.log', filemode='a')
 logging.info("程序启动开始连数据库")
 logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-DBfile = r"D:\PY_Project\spider\DB.accdb"
-conn = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=" + DBfile + ";Uid=;Pwd=;")
-cursor = conn.cursor()
+# DBfile = r"D:\PY_Project\spider\DB.accdb"
+# conn = pyodbc.connect(r"Driver={Microsoft Access Driver (*.mdb, *.accdb)};DBQ=" + DBfile + ";Uid=;Pwd=;")
+# cursor = conn.cursor()
+db = pymysql.connect(host='redis.intellij.xyz',user='root',passwd='mysql_password',db='av_db',port=3307,charset='utf8')
+cursor = db.cursor()
 logging.info("数据库连接成功")
 logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
 
-sql = "SELECT * FROM av_db WHERE isdown=False"
+sql_one = "SELECT * FROM avtable1 WHERE isdown=False and doing=False LIMIT 1"
 
 
-list_to_down=[]
+# list_to_down=[]
 ## 存储列表
 
-def getNewList():
-    logging.info("清空下载文件列表")
-    global list_to_down
-    list_to_down=[]
-    logging.info("获取下载文件列表")
-    res = cursor.execute(sql)
-    for row in res:
-        item = {"f":row[1],'u':row[2]}
-        list_to_down.append(item)
+# def getNewList():
+#     logging.info("清空下载文件列表")
+#     global list_to_down
+#     list_to_down=[]
+#     logging.info("获取下载文件列表")
+#     cursor.execute(sql)
+#     res = cursor.fetchall()
+#     for row in res:
+#         item = {"f":row[0],'u':row[1]}
+#         list_to_down.append(item)
+
+def getOne():
+    logging.info("开始获取一条数据")
+    cursor.execute(sql_one)
+    row = cursor.fetchone()
+    item = {"f":row[0],'u':row[1]}
+    logging.info("获取完成")
+    return item
+
 
 proxies={
     "https":"socks5://127.0.0.1:20001"
@@ -47,6 +60,21 @@ def get_hls(item):
     logging.info("获取到m3u8为 "+res)
     return res
 
+def setdoing(fanhao):
+    sql = "UPDATE avtable1 SET doing=True WHERE fanhao='{}'".format(fanhao)
+    logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    logging.info("😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡😡")
+    logging.info("更新数据库中 "+fanhao+" 为开始下载")
+    cursor.execute(sql)
+    db.commit()
+
+def setnotdoing(fanhao):
+    sql = "UPDATE avtable1 SET doing=False WHERE fanhao='{}'".format(fanhao)
+    logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
+    logging.info("👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍👍")
+    logging.info("更新数据库中 "+fanhao+" 为下载完成")
+    cursor.execute(sql)
+    db.commit()
 
 # 下载并合成
 def dl(m3u,file):
@@ -60,12 +88,12 @@ def dl(m3u,file):
 
 
 def setHave(fanhao):
-    sql = "UPDATE av_db SET isdown=True WHERE fanhao='{}'".format(fanhao)
+    sql = "UPDATE avtable1 SET isdown=True WHERE fanhao='{}'".format(fanhao)
     logging.info(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
     logging.info("😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁😁")
     logging.info("更新数据库中 "+fanhao+" 为已经下载")
     cursor.execute(sql)
-    conn.commit()
+    db.commit()
 
 # 更新数据库
 def updateDB(filename_need_find):
@@ -80,17 +108,11 @@ def updateDB(filename_need_find):
 # 统计当前数据库中的下载情况
 #返回当前下载量，剩余量和百分比
 def get_db_info():
-    sql_isdown = "SELECT * FROM av_db WHERE isdown=True"
-    sql_all = "SELECT * FROM av_db"
-    temp = cursor.execute(sql_isdown)
-    count=0
-    all_count=0
+    sql_isdown = "SELECT * FROM avtable1 WHERE isdown=True"
+    sql_all = "SELECT * FROM avtable1"
+    count=cursor.execute(sql_isdown)
     need_count=0
-    for row in temp:
-        count = count +1
-    temp = cursor.execute(sql_all)
-    for row in temp:
-        all_count = all_count+1
+    all_count = cursor.execute(sql_all)
     need_count=all_count-count
     
     # print(count,all_count,str(count/all_count*100)+"%")
@@ -98,14 +120,19 @@ def get_db_info():
     return count,  all_count,  str(count/all_count*100)+"%"
 
 def main():
-    getNewList()
     logging.info("主程序启动")
-    for item in list_to_down:
+    while True:
         try:
-            get_db_info()
-            dl(get_hls(item),item.get('f'))
-            # 检查下载的文件是否存在
-            updateDB(item.get('f'))
+            item = getOne()
+            if(item!=None):
+                get_db_info()
+                setdoing(item.get('f'))
+                dl(get_hls(item),item.get('f'))
+                setnotdoing(item.get('f'))
+                # 检查下载的文件是否存在
+                updateDB(item.get('f'))
+            else:
+                print("异常")
         except Exception as e:
             print(e)
 
