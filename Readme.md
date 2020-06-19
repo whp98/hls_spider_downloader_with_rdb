@@ -13,3 +13,14 @@
 ## 重要！！！ 项目依赖于`N_m3u8DL-CLI_v2.6.3.exe`和`ffmpeg.exe`
 
 请到相应的项目下载可执行文件到该目录运行
+
+
+## 最新更新，已经可以直接下载下来运行了，上面的依赖已经引入
+
+使用方式
+
+```
+git clone git@github.com:whp98/hls_spider_downloader_with_rdb.git --depth 1
+cd hls_spider_downloader_with_rdb
+python ./main_proc.py
+```
